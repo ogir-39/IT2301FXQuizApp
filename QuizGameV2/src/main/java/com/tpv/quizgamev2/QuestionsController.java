@@ -4,9 +4,13 @@
  */
 package com.tpv.quizgamev2;
 
+import com.tpv.project.Category;
+import com.tpv.service.CategoryService;
+import com.tpv.utils.JdbcConnection;
 import java.net.URL;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 
@@ -16,23 +20,17 @@ import javafx.fxml.Initializable;
  * @author admin
  */
 public class QuestionsController implements Initializable {
-
+    @FXML private ComboBox<Category> cbCates;
+    private static CategoryService cateService = new CategoryService();
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
-            // Nạp driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            // Thiết lập kết nối
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/quizdb", "root", "root");
-        // Xử lý truy vấn
-        Statement stm = conn.createStatement();
-        stm.excuteQuery("SELECT * FROM category");
-        // Đóng kết nối
-        conn.close();
-        } catch (ClassNotFoundException ex) {
+            List<Category> cates =  cateService.getCates();
+            this.cbCates.setItems(FXCollections.observableList(cates))
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
         
