@@ -23,18 +23,18 @@ public class Level {
     public String toString() {
         return this.name; // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
+    
+    
 
-    
-    
     /**
-     * @return the d
+     * @return the id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * @param id the d to set
+     * @param id the id to set
      */
     public void setId(int id) {
         this.id = id;
@@ -67,6 +67,4 @@ public class Level {
     public void setNote(String note) {
         this.note = note;
     }
-    
-    
 }

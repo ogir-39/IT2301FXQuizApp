@@ -18,12 +18,12 @@ public class Choice {
         this.content = content;
         this.correct = correct;
     }
-
+    
     public Choice(String content, boolean correct) {
         this.content = content;
         this.correct = correct;
     }
-    
+
     /**
      * @return the id
      */
@@ -65,6 +65,4 @@ public class Choice {
     public void setCorrect(boolean correct) {
         this.correct = correct;
     }
-    
-    
 }

@@ -4,6 +4,7 @@
  */
 package com.dht.pojo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,33 +12,71 @@ import java.util.List;
  * @author admin
  */
 public class Question {
+
     private int id;
     private String content;
     private String hint;
     private String image;
     private Category category;
     private Level level;
-    private List<Choice> choice;
+    private List<Choice> choices;
 
     public Question(Builder b) {
         this.id = b.id;
         this.content = b.content;
         this.hint = b.hint;
-        this.image=b.image;
-        this.category=b.category;
-        this.choices=b.choices;
+        this.image = b.image;
+        this.category = b.category;
+        this.level = b.level;
+        this.choices = b.choices;
     }
-    
-    public static class Builder{
+
+    public static class Builder {
+
         private int id;
         private String content;
         private String hint;
         private String image;
         private Category category;
         private Level level;
-        private List<Choice> choices;
+        private List<Choice> choices = new ArrayList<>();
+        
+        public Builder(String content, Category category, Level level) {
+            this.content = content;
+            this.category = category;
+            this.level = level;
+        }
+        
+        public Builder(int id, String content) {
+            this.id = id;
+            this.content = content;
+        }
+        
+        public Builder addHint(String h) {
+            this.hint = h;
+            return this;
+        }
+        
+        public Builder addImage(String im) {
+            this.image = im;
+            return this;
+        }
+        
+        public Builder addChoice(Choice c) {
+            this.choices.add(c);
+            return this;
+        }
+        
+        public Builder addAllChoices(List<Choice> choices) {
+            this.choices.addAll(choices);
+            return this;
+        }
+        
+        public Question build() {
+            return new Question(this);
+        }
     }
-    
+
     /**
      * @return the id
      */
@@ -123,18 +162,16 @@ public class Question {
     }
 
     /**
-     * @return the choice
+     * @return the choices
      */
-    public List<Choice> getChoice() {
-        return choice;
+    public List<Choice> getChoices() {
+        return choices;
     }
 
     /**
-     * @param choice the choice to set
+     * @param choices the choices to set
      */
-    public void setChoice(List<Choice> choice) {
-        this.choice = choice;
+    public void setChoices(List<Choice> choices) {
+        this.choices = choices;
     }
-    
-    
 }

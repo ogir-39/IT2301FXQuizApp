@@ -5,12 +5,10 @@
 package com.dht.pojo;
 
 
-
 /**
  *
  * @author admin
  */
-
 public class Category {
     private int id;
     private String name;
@@ -24,7 +22,7 @@ public class Category {
     public String toString() {
         return this.getName(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
-    
+
     /**
      * @return the id
      */
@@ -52,4 +50,6 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
+    
+    
 }

@@ -2,7 +2,9 @@ package com.dht.quizappv2;
 
 import com.dht.utils.MyAlert;
 import com.dht.utils.MyStage;
-import com.dht.utils.theme.Theme;
+import com.dht.utils.themes.DarkThemeFactory;
+import com.dht.utils.themes.Theme;
+import com.dht.utils.themes.ThemeManager;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,7 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 
-public class PrimaryController implements Initializable{
+public class PrimaryController implements Initializable {
     @FXML private ComboBox<Theme> cbThemes;
     
     @Override
@@ -23,12 +25,12 @@ public class PrimaryController implements Initializable{
         this.cbThemes.setItems(FXCollections.observableArrayList(Theme.values()));
     }
     
-    public void handleQuestionManagement(ActionEvent event) throws IOException {
-        MyStage.getInstance().showStage("questions.fxml");
+    public void changeTheme(ActionEvent event) {
+        this.cbThemes.getSelectionModel().getSelectedItem().updateTheme(this.cbThemes.getScene());
     }
     
-    public void changeTheme (ActionEvent event) {
-        this.cbThemes.getSelectionModel().getSelectedItem().updateTheme(this.cbThemes.getScene());
+    public void handleQuestionManagement(ActionEvent event) throws IOException {
+        MyStage.getInstance().showStage("questions.fxml");
     }
     
     public void handlePractice(ActionEvent event) {
@@ -46,6 +48,4 @@ public class PrimaryController implements Initializable{
     public void handleRegister(ActionEvent event) {
         MyAlert.getInstance().showMsg("Register: Comming soon...");
     }
-
-    
 }
