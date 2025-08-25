@@ -11,6 +11,7 @@ import com.dht.pojo.Question;
 import com.dht.services.CategoryService;
 import com.dht.services.LevelServices;
 import com.dht.services.questions.BaseQuestionServices;
+import com.dht.services.questions.CategoryQuestionDecorator;
 import com.dht.services.questions.KeywordQuestionDecorator;
 import com.dht.services.questions.QuestionServices;
 import com.dht.services.questions.UpdateQuestionServices;
@@ -51,22 +52,25 @@ import javafx.scene.layout.VBox;
  * @author admin
  */
 public class QuestionsController implements Initializable {
+
     @FXML private TextArea txtContent;
     @FXML private ComboBox<Category> cbCates;
+    @FXML private ComboBox<Category> cbSearchCates;
     @FXML private ComboBox<Level> cbLevels;
+    @FXML private ComboBox<Level> cbSearchLevels;
     @FXML private VBox vboxChoices;
     @FXML private TableView<Question> tbQuestions;
     @FXML private TextField txtSearch;
     @FXML private ToggleGroup toggleChoice;
-    
+
     private final static CategoryService cateSerivice = new CategoryService();
     private final static LevelServices levelService = new LevelServices();
     private final static QuestionServices questionService = new QuestionServices();
     private final static UpdateQuestionServices uquestionService = new UpdateQuestionServices();
-    
 
     /**
      * Initializes the controller class.
+     *
      * @param url
      * @param rb
      */
@@ -74,100 +78,115 @@ public class QuestionsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         try {
             this.cbCates.setItems(FXCollections.observableList(cateSerivice.getCates()));
+            this.cbSearchCates.setItems(FXCollections.observableList(cateSerivice.getCates()));
             this.cbLevels.setItems(FXCollections.observableList(levelService.getLevels()));
-            
+
             this.loadColumns();
             this.tbQuestions.setItems(FXCollections.observableList(questionService.list()));
         } catch (SQLException ex) {
             MyAlert.getInstance().showMsg("Đã có lỗi xảy ra, lý do: " + ex.getMessage());
         }
-        
+
         this.txtSearch.textProperty().addListener(e -> {
             try {
                 BaseQuestionServices s = new KeywordQuestionDecorator(questionService, this.txtSearch.getText());
-                
+
                 this.tbQuestions.getItems().clear();
-                
+
                 this.tbQuestions.setItems(FXCollections.observableList(s.list()));
             } catch (SQLException ex) {
                 Logger.getLogger(QuestionsController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
         });
-    }    
-    
+
+        this.cbSearchCates.getSelectionModel().selectedItemProperty().addListener(e -> {
+            BaseQuestionServices s = new CategoryQuestionDecorator(questionService, 
+                    this.cbSearchCates.getSelectionModel().getSelectedItem().getId());
+
+            this.tbQuestions.getItems().clear();
+
+            try {
+                this.tbQuestions.setItems(FXCollections.observableList(s.list()));
+            } catch (SQLException ex) {
+                Logger.getLogger(QuestionsController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+        });
+    }
+
     public void addChoice(ActionEvent event) {
         HBox h = new HBox();
         h.getStyleClass().add("Main");
-        
+
         RadioButton r = new RadioButton();
         r.setToggleGroup(toggleChoice);
         TextField txt = new TextField();
-        
+
         h.getChildren().addAll(r, txt);
-        
+
         this.vboxChoices.getChildren().add(h);
     }
-    
+
     public void addQuestion(ActionEvent event) {
-        Question.Builder b = new Question.Builder(this.txtContent.getText(), 
-                this.cbCates.getSelectionModel().getSelectedItem(), 
+        Question.Builder b = new Question.Builder(this.txtContent.getText(),
+                this.cbCates.getSelectionModel().getSelectedItem(),
                 this.cbLevels.getSelectionModel().getSelectedItem());
-        
-        for (var c: vboxChoices.getChildren()) {
+
+        for (var c : vboxChoices.getChildren()) {
             HBox h = (HBox) c;
-            
-            Choice choice = new Choice(((TextField)h.getChildren().get(1)).getText(), 
-                    ((RadioButton)h.getChildren().get(0)).isSelected());
-            
+
+            Choice choice = new Choice(((TextField) h.getChildren().get(1)).getText(),
+                    ((RadioButton) h.getChildren().get(0)).isSelected());
+
             b.addChoice(choice);
         }
-        
+
         Question q = b.build();
         try {
             uquestionService.addQuestion(q);
-            
+
             MyAlert.getInstance().showMsg("Them cau hoi thanh cong!");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             MyAlert.getInstance().showMsg("Them cau hoi that bai!");
         }
     }
-    
+
     private void loadColumns() {
         TableColumn colId = new TableColumn("Id");
         colId.setCellValueFactory(new PropertyValueFactory("id"));
         colId.setPrefWidth(100);
-        
+
         TableColumn colContent = new TableColumn("Nội dung câu hỏi");
         colContent.setCellValueFactory(new PropertyValueFactory("content"));
         colContent.setPrefWidth(300);
-        
+
         TableColumn colAction = new TableColumn();
         colAction.setCellFactory(e -> {
             TableCell cell = new TableCell();
-            
+
             Button btn = new Button("Xóa");
             btn.setOnAction(event -> {
                 Optional<ButtonType> t = MyAlert.getInstance().showMsg("Xóa câu hỏi sẽ xóa luôn các lựa chọn của nó. Bạn chắc chắn xóa?", Alert.AlertType.CONFIRMATION);
                 if (t.isPresent() && t.get().equals(ButtonType.OK)) {
                     try {
-                        Question q = (Question)cell.getTableRow().getItem();
+                        Question q = (Question) cell.getTableRow().getItem();
                         if (uquestionService.deletQuestion(q.getId())) {
                             MyAlert.getInstance().showMsg("Xóa câu hỏi thành công!");
                             this.tbQuestions.getItems().remove(q);
-                        } else
-                             MyAlert.getInstance().showMsg("Xóa câu hỏi thất bại!", Alert.AlertType.ERROR);
+                        } else {
+                            MyAlert.getInstance().showMsg("Xóa câu hỏi thất bại!", Alert.AlertType.ERROR);
+                        }
                     } catch (SQLException ex) {
                         MyAlert.getInstance().showMsg("Hệ thống có lỗi, lý do: " + ex.getMessage(), Alert.AlertType.ERROR);
                     }
                 }
             });
-            
+
             cell.setGraphic(btn);
-            
+
             return cell;
         });
-        
+
         this.tbQuestions.getColumns().addAll(colId, colContent, colAction);
     }
 }
